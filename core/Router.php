@@ -24,13 +24,6 @@ class Router
         return $router;
     }
     /*
-     * This function defines the routes of the application.
-     */
-    public function define($routes)
-    {
-        $this->routes = $routes;
-    }
-    /*
      * This function gets the GET route based on the URI and passes it off to the controller.
      */
     public function get($uri, $controller)
@@ -66,7 +59,7 @@ class Router
 
         $controller = new $controller;
 
-        if (! method_exists($controller, $action))
+        if (!method_exists($controller, $action))
         {
             throw new Exception("{$controller} does not respond to the {$action} action.");
         }

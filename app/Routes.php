@@ -2,12 +2,14 @@
 //First way of routing
 //uncomment to use array notation routing
 /*
-$router->define([
-    '' => 'controllers/index.php',
-    'about' => 'controllers/about.php',
-    'about/culture' => 'controllers/about-culture.php',
-    'contact' => 'controllers/contact.php',
-    'names' => 'controllers/add-name.php'
+$router->get([
+    '' => 'PagesController@home',
+    'about' => 'PagesController@about',
+    'contact' => 'PagesController@contact',
+    'users' => 'UsersController@index'
+]);
+$router->post([
+    'users' => 'UsersController@store'
 ]);
 */
 
