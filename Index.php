@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Ken Studdy
- * The starting point for our framework.
+ * The starting point for the framework.
  */
 require 'vendor/autoload.php';
 require 'core/bootstrap.php';
