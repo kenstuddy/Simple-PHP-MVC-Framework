@@ -6,4 +6,4 @@
     <title>Document</title>
 </head>
 <body>
-    <?php require('nav.php'); ?>
+<?php require('nav.php'); ?>
