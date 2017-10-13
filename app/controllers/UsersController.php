@@ -19,7 +19,7 @@ class UsersController
         return view('users', compact('users'));
     }
     /*
-     * This function inserts a new user into our database.
+     * This function inserts a new user into our database using array notation.
      */
     public function store()
     {
