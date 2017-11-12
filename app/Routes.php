@@ -15,9 +15,9 @@ $router->post([
 
 //Second way of routing
 $router->get('', 'PagesController@home');
-$router->get('about', 'PagesController@about');
-$router->get('contact', 'PagesController@contact');
+$router->get('About', 'PagesController@about');
+$router->get('Contact', 'PagesController@contact');
 
-$router->get('users', 'UsersController@index');
-$router->post('users', 'UsersController@store');
+$router->get('Users', 'UsersController@index');
+$router->post('Users', 'UsersController@store');
 ?>
