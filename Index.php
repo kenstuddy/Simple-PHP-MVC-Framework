@@ -4,7 +4,7 @@
  * The starting point for the framework.
  */
 require 'vendor/autoload.php';
-require 'core/bootstrap.php';
+require 'core/Bootstrap.php';
 display_errors();
 
 use App\Core\{Router, Request};
