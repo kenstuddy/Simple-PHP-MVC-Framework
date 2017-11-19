@@ -20,8 +20,9 @@ class Router
         $router = new static;
 
         require $file;
-
+        
         return $router;
+
     }
     /*
      * This function gets the GET route based on the URI and passes it off to the controller.
