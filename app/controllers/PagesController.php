@@ -14,7 +14,7 @@ class PagesController
     public function home()
     {
 
-        return view('Index');
+        return view('index');
     }
     /*
      * This function grabs the about view and passes the company variable so it can be extracted by the view.
@@ -22,14 +22,14 @@ class PagesController
     public function about()
     {
         $company = "My Company";
-        return view('About', compact('company'));
+        return view('about', compact('company'));
     }
     /*
      * This function grabs the contact view.
      */
     public function contact()
     {
-        return view('Contact');
+        return view('contact');
     }
 }
 

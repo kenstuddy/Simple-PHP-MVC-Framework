@@ -5,7 +5,7 @@
     <?php endforeach; ?>
 </ul>
 <h1>Submit Your Name</h1>
-<form method="POST" action="/Users">
+<form method="POST" action="/users">
     <input name="name"></input>
     <button type="submit">Submit</button>
 </form>

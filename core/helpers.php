@@ -12,7 +12,7 @@ function redirect($path)
 function view($name, $data = [])
 {
     extract($data);
-    return require "../app/views/{$name}.View.php";
+    return require "../app/views/{$name}.view.php";
 }
 /*
  * This function is used for dying and dumping.

@@ -16,7 +16,7 @@ class UsersController
     public function index()
     {
         $users = App::get('database')->selectAll('users');
-        return view('Users', compact('users'));
+        return view('users', compact('users'));
     }
     /*
      * This function inserts a new user into our database using array notation.
@@ -26,7 +26,7 @@ class UsersController
         App::get('database')->insert('users',[
             'name' => $_POST['name']
         ]);
-        return redirect('Users');
+        return redirect('users');
     }
 }
 

@@ -4,13 +4,13 @@
  * The starting point for the framework.
  */
 require '../vendor/autoload.php';
-require '../core/Bootstrap.php';
+require '../core/bootstrap.php';
 
 display_errors();
 
 use App\Core\{Router, Request};
 
-Router::load('../app/Routes.php')->direct(Request::uri(), Request::method());
+Router::load('../app/routes.php')->direct(Request::uri(), Request::method());
 
         
 ?>
