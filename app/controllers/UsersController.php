@@ -1,8 +1,7 @@
 <?php
 
 /*
- * This is the users controller. It adds returns the view for the users list portion of this framework (which happens to
- * be the index page).
+ * This is the users controller. It adds returns the view for the users list portion of this framework.
  */
 
 namespace App\Controllers;
