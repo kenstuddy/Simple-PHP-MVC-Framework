@@ -6,10 +6,14 @@
 require '../vendor/autoload.php';
 require '../core/bootstrap.php';
 
-display_errors();
+use App\Core\{Router, Request, App};
 
-use App\Core\{Router, Request};
+//If we are not in production mode, we will display errors to the web browser.
+if (!App::get('config')['options']['production']) {
+	display_errors();
+}
 
+//This is where we load the routes from the routes file.
 Router::load('../app/routes.php')->direct(Request::uri(), Request::method());
 
         

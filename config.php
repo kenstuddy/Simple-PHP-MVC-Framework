@@ -13,6 +13,9 @@ return [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_CASE => PDO::CASE_NATURAL
         ]
+    ],
+    'options' => [
+        'production' => false
     ]
 ]
 ?>
