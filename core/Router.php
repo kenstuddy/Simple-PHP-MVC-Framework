@@ -24,6 +24,7 @@ class Router
         return $router;
 
     }
+    
     /*
      * This function gets the GET route based on the URI and passes it off to the controller.
      */
@@ -38,6 +39,21 @@ class Router
     {
         $this->routes['POST'][$uri] = $controller;
     }
+    /*
+     * This function using array notation routing gets the GET routes. PHP does not support function overloading (also known as method overloading in OOP), so we cannot name this function get even though it has a different number of parameters than the get function used for routing without array notation.
+     */
+    public function getArray($routes) 
+    {
+        $this->routes['GET'] = $routes;
+    }
+    /*
+     * This function using array notation routing gets the POST routes. PHP does not support function overloading (also known as method overloading in OOP), so we cannot name this function post even though it has a different number of parameters than the post function used for routing without array notation.
+     */
+    public function postArray($routes)
+    {
+        $this->routes['POST'] = $routes;
+    }  
+
     /*
      * This function directs the user to the route based on the request type.
      */

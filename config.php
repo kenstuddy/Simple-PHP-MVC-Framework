@@ -15,7 +15,8 @@ return [
         ]
     ],
     'options' => [
-        'production' => false
+        'production' => false,
+        'array_routing' => false
     ]
 ]
 ?>
