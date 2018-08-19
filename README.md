@@ -14,18 +14,26 @@ https://github.com/kenstuddy/Deploy-LAMP
 
 Clone the repository
 
-```git clone https://github.com/kenstuddy/Simple-PHP-MVC-Framework```
+```
+git clone https://github.com/kenstuddy/Simple-PHP-MVC-Framework
+```
 
 Change to the repository directory
 
-```cd Simple-PHP-MVC-Framework```
+```
+cd Simple-PHP-MVC-Framework
+```
 
 Change to the public directory
 
-```cd public```
+```
+cd public
+```
 
 Start the PHP server (0.0.0.0 is the default route, this makes PHP listen on all IPv4 interfaces)
 
-```php -S 0.0.0.0:8000```
+```
+php -S 0.0.0.0:8000
+```
 
 Visit the IP address (127.0.0.1 if you are running Linux natively, or the IP address of your VM/VPS/etc) http://127.0.0.1:8000 in your web browser.
