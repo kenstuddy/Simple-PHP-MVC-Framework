@@ -2,7 +2,7 @@
 This is a simple PHP MVC framework. Made in 2017, it uses Composer and is designed to be very simple to use. Inspired by Laravel. 
 
 # Requirements
-* PHP >= 7.0.0
+* PHP >= 7.1.0
 * MySQL >= 5.6.10
 
 # How to Install
