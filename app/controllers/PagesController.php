@@ -21,8 +21,8 @@ class PagesController
      */
     public function about()
     {
-        $company = "My Company";
-        return view('about', compact('company'));
+        $title = "Us";
+        return view('about', compact('title'));
     }
     /*
      * This function grabs the contact view.
