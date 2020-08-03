@@ -15,6 +15,7 @@ return [
         ]
     ],
     'options' => [
+        'debug' => true,
         'production' => false,
         'array_routing' => false
     ]
