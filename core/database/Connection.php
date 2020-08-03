@@ -1,5 +1,6 @@
 <?php
 namespace App\Core\Database;
+use App\Core\App;
 use PDO;
 use PDOException;
 class Connection
@@ -18,7 +19,11 @@ class Connection
             );
         }
         catch (PDOException $e) {
-            die($e->getMessage());
+            App::logError('There was a PDO Exception. Details: ' . $e);
+            if (App::get('config')['options']['debug']) {
+                return view('error', ['error' => $e->getMessage()]);
+            }
+            return view('error');
         }
     }
 }
