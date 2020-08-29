@@ -7,6 +7,7 @@
 namespace App\Controllers;
 
 use App\Core\App;
+use App\Models\User;
 
 class UsersController
 {
@@ -16,7 +17,7 @@ class UsersController
      */
     public function index()
     {
-        $users = App::get('database')->selectAll('users');
+        $users = User::all();
         return view('users', compact('users'));
     }
 
