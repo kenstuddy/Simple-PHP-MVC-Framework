@@ -5,7 +5,9 @@
  */
 
 namespace App\Controllers;
+
 use App\Core\App;
+
 class UsersController
 {
 
@@ -17,13 +19,14 @@ class UsersController
         $users = App::get('database')->selectAll('users');
         return view('users', compact('users'));
     }
+
     /*
      * This function selects a the user from the users database and then grabs the user view to display them.
      */
     public function show($vars)
     {
-        $user = App::get('database')->selectAllWhere('users',[
-             ['user_id', '=', $vars['id']],
+        $user = App::get('database')->selectAllWhere('users', [
+            ['user_id', '=', $vars['id']],
         ]);
         return view('user', compact('user'));
     }
@@ -33,7 +36,7 @@ class UsersController
      */
     public function store()
     {
-        App::get('database')->insert('users',[
+        App::get('database')->insert('users', [
             'name' => $_POST['name']
         ]);
         return redirect('users');
@@ -44,9 +47,9 @@ class UsersController
      */
     public function update($vars)
     {
-        App::get('database')->updateWhere('users',[
+        App::get('database')->updateWhere('users', [
             'name' => $_POST['name']
-        ],[
+        ], [
             ['user_id', '=', $vars['id']]
         ]);
         return redirect('user/' . $vars['id']);
@@ -57,11 +60,11 @@ class UsersController
      */
     public function delete($vars)
     {
-        App::get('database')->deleteWhere('users',[
+        App::get('database')->deleteWhere('users', [
             ['user_id', '=', $vars['id']]
         ]);
         return redirect('users');
     }
 }
 
- ?>
+?>
