@@ -43,7 +43,7 @@ class QueryBuilder
     {
         $limit = $this->prepareLimit($limit);
         $offset = $this->prepareOffset($offset);
-        $sql = "SELECT $columns FROM {$table} {$limit} {$offset}";
+        $sql = "SELECT {$columns} FROM {$table} {$limit} {$offset}";
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
@@ -64,7 +64,7 @@ class QueryBuilder
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
-        $sql = "SELECT $columns FROM {$table} WHERE $mapped_wheres {$limit} {$offset}";
+        $sql = "SELECT {$columns} FROM {$table} WHERE {$mapped_wheres} {$limit} {$offset}";
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->execute($where);
@@ -101,7 +101,7 @@ class QueryBuilder
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
-        $sql = "DELETE FROM {$table} WHERE $mapped_wheres {$limit}";
+        $sql = "DELETE FROM {$table} WHERE {$mapped_wheres} {$limit}";
         try {
             $statement = $this->pdo->prepare($sql);
             return $statement->execute($where);
