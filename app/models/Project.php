@@ -4,9 +4,11 @@
  */
 namespace App\Models;
 
-class Project
-{
+use App\Core\Model;
 
+class Project extends Model
+{
+    protected static $table = 'projects';
 }
 
 
