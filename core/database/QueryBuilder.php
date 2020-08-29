@@ -23,25 +23,27 @@ class QueryBuilder
     /*
      * This function selects all of the rows from a table in a database.
      */
-    public function selectAll(string $table)
+    public function selectAll(string $table, $limit = "", $offset = "")
     {
-        return $this->select($table, "*");
+        return $this->select($table, "*", $limit, $offset);
     }
 
     /*
      * This function selects rows from a table in a database where one or more conditions are matched.
      */
-    public function selectAllWhere(string $table, $where)
+    public function selectAllWhere(string $table, $where, $limit = "", $offset = "")
     {
-        return $this->selectWhere($table, "*", $where);
+        return $this->selectWhere($table, "*", $where, $limit, $offset);
     }
 
     /*
      * This function selects rows from a table in a database.
      */
-    public function select(string $table, string $columns)
+    public function select(string $table, string $columns, $limit = "", $offset = "")
     {
-        $sql = "SELECT $columns FROM {$table}";
+        $limit = $this->prepareLimit($limit);
+        $offset = $this->prepareOffset($offset);
+        $sql = "SELECT $columns FROM {$table} {$limit} {$offset}";
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
@@ -55,12 +57,14 @@ class QueryBuilder
     /*
      * This function selects rows from a table in a database where one or more conditions are matched.
      */
-    public function selectWhere(string $table, string $columns, $where)
+    public function selectWhere(string $table, string $columns, $where, $limit = "", $offset = "")
     {
+        $limit = $this->prepareLimit($limit);
+        $offset = $this->prepareOffset($offset);
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
-        $sql = "SELECT $columns FROM {$table} WHERE $mapped_wheres";
+        $sql = "SELECT $columns FROM {$table} WHERE $mapped_wheres {$limit} {$offset}";
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->execute($where);
@@ -74,9 +78,10 @@ class QueryBuilder
     /*
      * This function deletes rows from a table in a database.
      */
-    public function delete(string $table): bool
+    public function delete(string $table, $limit = ""): bool
     {
-        $sql = "DELETE FROM {$table}";
+        $limit = $this->prepareLimit($limit);
+        $sql = "DELETE FROM {$table} {$limit}";
         try {
             $statement = $this->pdo->prepare($sql);
             return $statement->execute();
@@ -90,12 +95,13 @@ class QueryBuilder
     /*
      * This function deletes rows from a table in a database where one or more conditions are matched.
      */
-    public function deleteWhere(string $table, $where): bool
+    public function deleteWhere(string $table, $where, $limit = ""): bool
     {
+        $limit = $this->prepareLimit($limit);
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
-        $sql = "DELETE FROM {$table} WHERE $mapped_wheres";
+        $sql = "DELETE FROM {$table} WHERE $mapped_wheres {$limit}";
         try {
             $statement = $this->pdo->prepare($sql);
             return $statement->execute($where);
@@ -130,13 +136,15 @@ class QueryBuilder
     /*
      * This function updates data in a table in a database.
      */
-    public function update(string $table, $parameters): bool
+    public function update(string $table, $parameters, $limit = ""): bool
     {
+        $limit = $this->prepareLimit($limit);
         $set = $this->prepareNamed($parameters);
         $sql = sprintf(
-            'UPDATE %s SET %s',
+            'UPDATE %s SET %s %s',
             $table,
-            $set
+            $set,
+            $limit
         );
         try {
             $statement = $this->pdo->prepare($sql);
@@ -150,18 +158,20 @@ class QueryBuilder
     /*
      * This function updates data in a table in a database where one or more conditions are matched.
      */
-    public function updateWhere(string $table, $parameters, $where): bool
+    public function updateWhere(string $table, $parameters, $where, $limit = ""): bool
     {
+        $limit = $this->prepareLimit($limit);
         $set = $this->prepareUnnamed($parameters);
         $parameters = $this->prepareParameters($parameters);
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
         $sql = sprintf(
-            'UPDATE %s SET %s WHERE %s',
+            'UPDATE %s SET %s WHERE %s %s',
             $table,
             $set,
-            $mapped_wheres
+            $mapped_wheres,
+            $limit
         );
         try {
             $statement = $this->pdo->prepare($sql);
@@ -184,6 +194,22 @@ class QueryBuilder
             }
         }
         return $array;
+    }
+
+    /*
+     * This function prepares the limit statement for the query builder.
+     */
+    private function prepareLimit($limit)
+    {
+        return (!empty($limit) ? " LIMIT " . $limit : "");
+    }
+
+    /*
+     * This function prepares the offset statement for the query builder.
+     */
+    private function prepareOffset($offset)
+    {
+        return (!empty($offset) ? " OFFSET " . $offset : "");
     }
 
     /*
