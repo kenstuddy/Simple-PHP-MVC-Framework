@@ -36,6 +36,14 @@ class UnitTest extends TestCase
     }
 
     /** @test */
+    public function users_limit()
+    {
+        $count = 2;
+        $users = App::get('database')->selectAll('users', $count);
+        $this->assertCount($count, $users);
+    }
+
+    /** @test */
     public function user_show()
     {
         $user = App::get('database')->selectAllWhere('users', [
