@@ -7,3 +7,9 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(155) NOT NULL, 
     PRIMARY KEY(user_id)
 );
+
+CREATE TABLE IF NOT EXISTS projects (
+    project_id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(155) NOT NULL,
+    PRIMARY KEY(project_id)
+);
