@@ -110,8 +110,8 @@ class QueryBuilder
      */
     public function insert(string $table, $parameters): bool
     {
-        $names = $this->prepareCommaSeparatedNames($parameters);
-        $values = $this->prepareCommaSeparatedValues($parameters);
+        $names = $this->prepareCommaSeparatedColumnNames($parameters);
+        $values = $this->prepareCommaSeparatedColumnValues($parameters);
         $sql = sprintf(
             'INSERT INTO %s (%s) VALUES (%s)',
             $table,
@@ -189,7 +189,7 @@ class QueryBuilder
     /*
      * This function prepares the comma separated names for the query builder.
      */
-    private function prepareCommaSeparatedNames($parameters): string
+    private function prepareCommaSeparatedColumnNames($parameters): string
     {
         return implode(', ', array_keys($parameters));
     }
@@ -197,7 +197,7 @@ class QueryBuilder
     /*
      * This function prepares the comma separated values for the query builder.
      */
-    private function prepareCommaSeparatedValues($parameters): string
+    private function prepareCommaSeparatedColumnValues($parameters): string
     {
         return ':' . implode(', :', array_keys($parameters));
     }
