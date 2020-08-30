@@ -3,8 +3,9 @@
 namespace tests\Unit;
 
 use tests\TestCase;
-
 use App\Core\{Router, Request, App};
+use App\Models\User;
+use App\Models\Project;
 
 class UnitTest extends TestCase
 {
@@ -86,6 +87,65 @@ class UnitTest extends TestCase
             ['name', '=', 'SecondUser'],
         ]);
         $this->assertEmpty($secondDeletedUser);
+    }
+
+    /** @test */
+    public function user_model_add()
+    {
+        $user = new User();
+        $user->add(['name' => 'TestUser']);
+        $foundUser = $user->find([['name', '=', 'TestUser']])->first();
+        $this->assertEquals($foundUser->name, 'TestUser');
+    }
+
+    /** @test */
+    public function user_model_index()
+    {
+        $users = User::all();
+        $this->assertNotEmpty($users);
+    }
+
+    /** @test */
+    public function user_model_update()
+    {
+        $user = new User();
+        $user->updateWhere(['name' => 'SomeUser'], [['name', '=', 'TestUser']]);
+        $updatedUser = $user->find([['name', '=', 'SomeUser']])->first();
+        $this->assertEquals($updatedUser->name, 'SomeUser');
+    }
+
+    /** @test */
+    public function user_model_delete()
+    {
+        $user = new User();
+        $user->deleteWhere([['name', '=', 'SomeUser']]);
+        $deletedUser = $user->find([['name', '=', 'TestUser']])->first();
+        $this->assertEmpty($deletedUser);
+    }
+
+    /** @test */
+    public function project_model_add()
+    {
+        $project = new Project();
+        $project->add(['name' => 'TestProject']);
+        $foundProject = $project->find([['name', '=', 'TestProject']])->first();
+        $this->assertEquals($foundProject->name, 'TestProject');
+    }
+
+    /** @test */
+    public function project_model_index()
+    {
+        $projects = Project::all();
+        $this->assertNotEmpty($projects);
+    }
+
+    /** @test */
+    public function project_model_delete()
+    {
+        $project = new Project();
+        $project->deleteWhere([['name', '=', 'TestProject']]);
+        $deletedProject = $project->find([['name', '=', 'TestProject']])->first();
+        $this->assertEmpty($deletedProject);
     }
 
 }
