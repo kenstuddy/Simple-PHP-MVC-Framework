@@ -4,6 +4,7 @@ This is a simple PHP MVC framework. Made in 2017, it uses Composer and is design
 # Requirements
 * PHP >= 7.3.0
 * MySQL >= 5.6.10
+* Composer
 
 # How to Install
 Note: It is recommended that you install LAMP with my LAMP install script to ensure that you have all of the requirements.
