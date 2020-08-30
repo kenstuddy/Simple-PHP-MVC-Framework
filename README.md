@@ -43,3 +43,9 @@ php -S 0.0.0.0:8000
 ```
 
 Visit the IP address (127.0.0.1 if you are running Linux natively, or the IP address of your VM/VPS/etc) http://127.0.0.1:8000 in your web browser.
+
+To run the included unit tests, make sure you are still in the public directory, and then type the following command
+
+```
+../vendor/bin/phpunit ../tests
+```
