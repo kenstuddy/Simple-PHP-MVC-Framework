@@ -6,38 +6,87 @@ use App\Core\App;
 use PDO;
 use PDOException;
 use PDOStatement;
+use Exception;
 use App\Core\Logger\LogToFile;
 
 class QueryBuilder
 {
+    /**
+     * This is the PDO instance.
+     * @var PDO
+     */
     protected $pdo;
 
-    /*
-     * This function is the constructor for the QueryBuilder class and simply initializes a new PDO object.
+    /**
+     * This is the class name a Model will be bound to.
+     * @var
+     */
+    protected $class_name;
+
+    /**
+     * This method is the constructor for the QueryBuilder class and simply initializes a new PDO object.
+     * @param PDO $pdo
      */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
-    /*
-     * This function selects all of the rows from a table in a database.
+    /**
+     * This method returns the PDO instance.
+     * @return PDO
+     */
+    public function getPdo(): PDO
+    {
+        return $this->pdo;
+    }
+
+    /**
+     * This method sets the class name to bind the Model to.
+     * @param mixed $class_name
+     * @return QueryBuilder
+     */
+    public function setClassName($class_name): QueryBuilder
+    {
+        $this->class_name = $class_name;
+        return $this;
+    }
+
+    /**
+     * This method selects all of the rows from a table in a database.
+     * @param string $table
+     * @param string $limit
+     * @param string $offset
+     * @return array|false
+     * @throws Exception
      */
     public function selectAll(string $table, $limit = "", $offset = "")
     {
         return $this->select($table, "*", $limit, $offset);
     }
 
-    /*
-     * This function selects rows from a table in a database where one or more conditions are matched.
+    /**
+     * This method selects rows from a table in a database where one or more conditions are matched.
+     * @param string $table
+     * @param $where
+     * @param string $limit
+     * @param string $offset
+     * @return array|false
+     * @throws Exception
      */
     public function selectAllWhere(string $table, $where, $limit = "", $offset = "")
     {
         return $this->selectWhere($table, "*", $where, $limit, $offset);
     }
 
-    /*
-     * This function selects rows from a table in a database.
+    /**
+     * This method selects rows from a table in a database.
+     * @param string $table
+     * @param string $columns
+     * @param string $limit
+     * @param string $offset
+     * @return array|false
+     * @throws Exception
      */
     public function select(string $table, string $columns, $limit = "", $offset = "")
     {
@@ -47,15 +96,22 @@ class QueryBuilder
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
-            return $statement->fetchAll(PDO::FETCH_CLASS);
+            return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
         return false;
     }
 
-    /*
-     * This function selects rows from a table in a database where one or more conditions are matched.
+    /**
+     * This method selects rows from a table in a database where one or more conditions are matched.
+     * @param string $table
+     * @param string $columns
+     * @param $where
+     * @param string $limit
+     * @param string $offset
+     * @return array|false
+     * @throws Exception
      */
     public function selectWhere(string $table, string $columns, $where, $limit = "", $offset = "")
     {
@@ -68,15 +124,19 @@ class QueryBuilder
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->execute($where);
-            return $statement->fetchAll(PDO::FETCH_CLASS);
+            return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
         return false;
     }
 
-    /*
-     * This function deletes rows from a table in a database.
+    /**
+     * This method deletes rows from a table in a database.
+     * @param string $table
+     * @param string $limit
+     * @return bool
+     * @throws Exception
      */
     public function delete(string $table, $limit = ""): bool
     {
@@ -92,8 +152,13 @@ class QueryBuilder
     }
 
 
-    /*
-     * This function deletes rows from a table in a database where one or more conditions are matched.
+    /**
+     * This method deletes rows from a table in a database where one or more conditions are matched.
+     * @param string $table
+     * @param $where
+     * @param string $limit
+     * @return bool
+     * @throws Exception
      */
     public function deleteWhere(string $table, $where, $limit = ""): bool
     {
@@ -111,8 +176,12 @@ class QueryBuilder
         return false;
     }
 
-    /*
-     * This function inserts data into a table in a database.
+    /**
+     * This method inserts data into a table in a database.
+     * @param string $table
+     * @param $parameters
+     * @return bool
+     * @throws Exception
      */
     public function insert(string $table, $parameters): bool
     {
@@ -126,15 +195,21 @@ class QueryBuilder
         );
         try {
             $statement = $this->pdo->prepare($sql);
-            return $statement->execute($parameters);
+            $statement->execute($parameters);
+            return $this->pdo->lastInsertId();
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
         return false;
     }
 
-    /*
-     * This function updates data in a table in a database.
+    /**
+     * This method updates data in a table in a database.
+     * @param string $table
+     * @param $parameters
+     * @param string $limit
+     * @return bool
+     * @throws Exception
      */
     public function update(string $table, $parameters, $limit = ""): bool
     {
@@ -155,8 +230,14 @@ class QueryBuilder
         return false;
     }
 
-    /*
-     * This function updates data in a table in a database where one or more conditions are matched.
+    /**
+     * This method updates data in a table in a database where one or more conditions are matched.
+     * @param string $table
+     * @param $parameters
+     * @param $where
+     * @param string $limit
+     * @return bool
+     * @throws Exception
      */
     public function updateWhere(string $table, $parameters, $where, $limit = ""): bool
     {
@@ -182,8 +263,49 @@ class QueryBuilder
         return false;
     }
 
-    /*
-     * This function prepares the where clause array for the query builder.
+    /**
+     * This method selects all of the rows from a table in a database.
+     * @param string $table
+     * @return array
+     * @throws Exception
+     */
+    public function describe(string $table): array
+    {
+        $sql = "DESCRIBE {$table}";
+        try {
+            $statement = $this->pdo->prepare($sql);
+            $statement->execute();
+        } catch (PDOException $e) {
+            $this->handlePDOException($e);
+        }
+        return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
+    }
+
+    /**
+     * This method executes raw SQL against a database.
+     * @param string $sql
+     * @param array $parameters
+     * @return array|bool
+     * @throws Exception
+     */
+    public function raw(string $sql, array $parameters = [])
+    {
+        try {
+            $statement = $this->pdo->prepare($sql);
+            $output = $statement->execute($parameters);
+        } catch (PDOException $e) {
+            $this->handlePDOException($e);
+        }
+        if (stripos($sql, "SELECT") === 0) {
+            $output = $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
+        }
+        return $output;
+    }
+
+    /**
+     * This method prepares the where clause array for the query builder.
+     * @param $where
+     * @return mixed
      */
     private function prepareWhere($where)
     {
@@ -196,40 +318,50 @@ class QueryBuilder
         return $array;
     }
 
-    /*
-     * This function prepares the limit statement for the query builder.
+    /**
+     * This method prepares the limit statement for the query builder.
+     * @param $limit
+     * @return string
      */
-    private function prepareLimit($limit)
+    private function prepareLimit($limit): string
     {
         return (!empty($limit) ? " LIMIT " . $limit : "");
     }
 
-    /*
-     * This function prepares the offset statement for the query builder.
+    /**
+     * This method prepares the offset statement for the query builder.
+     * @param $offset
+     * @return string
      */
-    private function prepareOffset($offset)
+    private function prepareOffset($offset): string
     {
         return (!empty($offset) ? " OFFSET " . $offset : "");
     }
 
-    /*
-     * This function prepares the comma separated names for the query builder.
+    /**
+     * This method prepares the comma separated names for the query builder.
+     * @param $parameters
+     * @return string
      */
     private function prepareCommaSeparatedColumnNames($parameters): string
     {
         return implode(', ', array_keys($parameters));
     }
 
-    /*
-     * This function prepares the comma separated values for the query builder.
+    /**
+     * This method prepares the comma separated values for the query builder.
+     * @param $parameters
+     * @return string
      */
     private function prepareCommaSeparatedColumnValues($parameters): string
     {
         return ':' . implode(', :', array_keys($parameters));
     }
 
-    /*
-     * This function prepares the mapped wheres.
+    /**
+     * This method prepares the mapped wheres.
+     * @param $where
+     * @return string
      */
     private function prepareMappedWheres($where): string
     {
@@ -241,8 +373,10 @@ class QueryBuilder
         return $mapped_wheres;
     }
 
-    /*
-     * This function prepares the unnamed columns.
+    /**
+     * This method prepares the unnamed columns.
+     * @param $parameters
+     * @return string
      */
     private function prepareUnnamed($parameters): string
     {
@@ -254,8 +388,10 @@ class QueryBuilder
         ));
     }
 
-    /*
-     * This function prepares the named columns.
+    /**
+     * This method prepares the named columns.
+     * @param $parameters
+     * @return string
      */
     private function prepareNamed($parameters): string
     {
@@ -267,8 +403,11 @@ class QueryBuilder
         ));
     }
 
-    /*
-     * This function prepares the parameters with numeric keys.
+    /**
+     * This method prepares the parameters with numeric keys.
+     * @param $parameters
+     * @param int $counter
+     * @return mixed
      */
     private function prepareParameters($parameters, $counter = 1)
     {
@@ -280,8 +419,11 @@ class QueryBuilder
         return $parameters;
     }
 
-    /*
-     * This function binds values from an array to the PDOStatement.
+    /**
+     * This method binds values from an array to the PDOStatement.
+     * @param PDOStatement $PDOStatement
+     * @param $array
+     * @param int $counter
      */
     private function prepareBindings(PDOStatement $PDOStatement, $array, $counter = 1): void
     {
@@ -291,8 +433,11 @@ class QueryBuilder
         }
     }
 
-    /*
-     * This function handles PDO exceptions.
+    /**
+     * This method handles PDO exceptions.
+     * @param PDOException $e
+     * @return mixed
+     * @throws Exception
      */
     private function handlePDOException(PDOException $e)
     {
