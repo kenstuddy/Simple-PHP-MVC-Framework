@@ -7,7 +7,6 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use Exception;
-use App\Core\Logger\LogToFile;
 
 class QueryBuilder
 {
@@ -135,20 +134,21 @@ class QueryBuilder
      * This method deletes rows from a table in a database.
      * @param string $table
      * @param string $limit
-     * @return bool
+     * @return int
      * @throws Exception
      */
-    public function delete(string $table, $limit = ""): bool
+    public function delete(string $table, $limit = ""): int
     {
         $limit = $this->prepareLimit($limit);
         $sql = "DELETE FROM {$table} {$limit}";
         try {
             $statement = $this->pdo->prepare($sql);
-            return $statement->execute();
+            $statement->execute();
+            return $statement->rowCount();
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
-        return false;
+        return 0;
     }
 
 
@@ -157,10 +157,10 @@ class QueryBuilder
      * @param string $table
      * @param $where
      * @param string $limit
-     * @return bool
+     * @return int
      * @throws Exception
      */
-    public function deleteWhere(string $table, $where, $limit = ""): bool
+    public function deleteWhere(string $table, $where, $limit = ""): int
     {
         $limit = $this->prepareLimit($limit);
         $where = $this->prepareWhere($where);
@@ -169,21 +169,22 @@ class QueryBuilder
         $sql = "DELETE FROM {$table} WHERE {$mapped_wheres} {$limit}";
         try {
             $statement = $this->pdo->prepare($sql);
-            return $statement->execute($where);
+            $statement->execute($where);
+            return $statement->rowCount();
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
-        return false;
+        return 0;
     }
 
     /**
      * This method inserts data into a table in a database.
      * @param string $table
      * @param $parameters
-     * @return bool
+     * @return string
      * @throws Exception
      */
-    public function insert(string $table, $parameters): bool
+    public function insert(string $table, $parameters): string
     {
         $names = $this->prepareCommaSeparatedColumnNames($parameters);
         $values = $this->prepareCommaSeparatedColumnValues($parameters);
@@ -200,7 +201,7 @@ class QueryBuilder
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
-        return false;
+        return "";
     }
 
     /**
@@ -208,10 +209,10 @@ class QueryBuilder
      * @param string $table
      * @param $parameters
      * @param string $limit
-     * @return bool
+     * @return int
      * @throws Exception
      */
-    public function update(string $table, $parameters, $limit = ""): bool
+    public function update(string $table, $parameters, $limit = ""): int
     {
         $limit = $this->prepareLimit($limit);
         $set = $this->prepareNamed($parameters);
@@ -223,11 +224,12 @@ class QueryBuilder
         );
         try {
             $statement = $this->pdo->prepare($sql);
-            return $statement->execute($parameters);
+            $statement->execute($parameters);
+            return $statement->rowCount();
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
-        return false;
+        return 0;
     }
 
     /**
@@ -236,10 +238,10 @@ class QueryBuilder
      * @param $parameters
      * @param $where
      * @param string $limit
-     * @return bool
+     * @return int
      * @throws Exception
      */
-    public function updateWhere(string $table, $parameters, $where, $limit = ""): bool
+    public function updateWhere(string $table, $parameters, $where, $limit = ""): int
     {
         $limit = $this->prepareLimit($limit);
         $set = $this->prepareUnnamed($parameters);
@@ -256,50 +258,54 @@ class QueryBuilder
         );
         try {
             $statement = $this->pdo->prepare($sql);
-            return $statement->execute(array_merge($parameters, $where));
+            $statement->execute(array_merge($parameters, $where));
+            return $statement->rowCount();
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
-        return false;
+        return 0;
     }
 
     /**
      * This method selects all of the rows from a table in a database.
      * @param string $table
-     * @return array
+     * @return array|int
      * @throws Exception
      */
-    public function describe(string $table): array
+    public function describe(string $table)
     {
         $sql = "DESCRIBE {$table}";
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->execute();
+            return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
-        return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
+        return 0;
     }
 
     /**
      * This method executes raw SQL against a database.
      * @param string $sql
      * @param array $parameters
-     * @return array|bool
+     * @return array|int
      * @throws Exception
      */
     public function raw(string $sql, array $parameters = [])
     {
         try {
             $statement = $this->pdo->prepare($sql);
-            $output = $statement->execute($parameters);
+            $statement->execute($parameters);
+            $output = $statement->rowCount();
+            if (stripos($sql, "SELECT") === 0) {
+                $output = $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
+            }
+            return $output;
         } catch (PDOException $e) {
             $this->handlePDOException($e);
         }
-        if (stripos($sql, "SELECT") === 0) {
-            $output = $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
-        }
-        return $output;
+        return 0;
     }
 
     /**
