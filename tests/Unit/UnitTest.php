@@ -24,9 +24,8 @@ class UnitTest extends TestCase
         $secondUser = App::get('database')->insert('users', [
             'name' => 'SecondUser'
         ]);
-
-        $this->assertTrue($testUser);
-        $this->assertTrue($secondUser);
+        $this->assertNotEmpty($testUser);
+        $this->assertNotEmpty($secondUser);
     }
 
     /** @test */
@@ -61,7 +60,7 @@ class UnitTest extends TestCase
         ], [
             ['name', '=', 'TestUser']
         ]);
-        $this->assertNotFalse($user);
+        $this->assertNotEmpty($user);
         $renamedUser = App::get('database')->selectAllWhere('users', [
             ['name', '=', 'FirstUser'],
         ]);
@@ -74,7 +73,7 @@ class UnitTest extends TestCase
         $firstUser = App::get('database')->deleteWhere('users', [
             ['name', '=', 'FirstUser'],
         ]);
-        $this->assertTrue($firstUser);
+        $this->assertNotEmpty($firstUser);
         $firstDeletedUser = App::get('database')->selectAllWhere('users', [
             ['name', '=', 'FirstUser'],
         ]);
@@ -82,7 +81,7 @@ class UnitTest extends TestCase
         $secondUser = App::get('database')->deleteWhere('users', [
             ['name', '=', 'SecondUser'],
         ]);
-        $this->assertTrue($secondUser);
+        $this->assertNotEmpty($secondUser);
         $secondDeletedUser = App::get('database')->selectAllWhere('users', [
             ['name', '=', 'SecondUser'],
         ]);
@@ -106,6 +105,30 @@ class UnitTest extends TestCase
     }
 
     /** @test */
+    public function user_model_first_or_fail()
+    {
+        $user = new User();
+        $user->find([['name', '=', 'TestUser']]);
+        $user->firstOrFail();
+        $this->assertNotEmpty($user);
+    }
+
+    /** @test */
+    public function users_raw_query()
+    {
+        $unnamedUsers = App::get('database')->raw('SELECT * FROM users WHERE user_id > ?', [0]);
+        $this->assertNotEmpty(count($unnamedUsers));
+        $namedUsers = App::get('database')->raw('SELECT * FROM users WHERE user_id > :user_id', ['user_id' => 0]);
+        $this->assertNotEmpty(count($namedUsers));
+        $newUser = App::get('database')->raw('INSERT INTO users(name) VALUES (?)', ['TestingUser']);
+        $this->assertNotEmpty($newUser);
+        $deleteUser = App::get('database')->raw('DELETE FROM users WHERE name = :name', ['name' => 'TestingUser']);
+        $this->assertNotEmpty($deleteUser);
+        $deletedUser = App::get('database')->raw('SELECT * FROM users WHERE name = ?', ['TestingUser']);
+        $this->assertEmpty(count($deletedUser));
+    }
+
+    /** @test */
     public function user_model_update()
     {
         $user = new User();
@@ -115,11 +138,22 @@ class UnitTest extends TestCase
     }
 
     /** @test */
+    public function user_model_save()
+    {
+        $user = new User();
+        $foundUser = $user->find([['name', '=', 'SomeUser']])->first();
+        $this->assertEquals($foundUser->name, 'SomeUser');
+        $foundUser->name = 'ThisUser';
+        $foundUser->save();
+        $this->assertEquals($user->first()->name, 'ThisUser');
+    }
+
+    /** @test */
     public function user_model_delete()
     {
         $user = new User();
-        $user->deleteWhere([['name', '=', 'SomeUser']]);
-        $deletedUser = $user->find([['name', '=', 'TestUser']])->first();
+        $user->deleteWhere([['name', '=', 'ThisUser']]);
+        $deletedUser = $user->find([['name', '=', 'ThisUser']])->first();
         $this->assertEmpty($deletedUser);
     }
 
@@ -127,9 +161,21 @@ class UnitTest extends TestCase
     public function project_model_add()
     {
         $project = new Project();
-        $project->add(['name' => 'TestProject']);
+        $project = $project->add(['name' => 'TestProject']);
         $foundProject = $project->find([['name', '=', 'TestProject']])->first();
         $this->assertEquals($foundProject->name, 'TestProject');
+
+    }
+
+    /** @test */
+    public function project_model_save()
+    {
+        $project = new Project();
+        $foundProject = $project->find([['name', '=', 'TestProject']])->first();
+        $this->assertEquals($foundProject->name, 'TestProject');
+        $foundProject->name = 'SomeProject';
+        $foundProject->save();
+        $this->assertEquals($project->first()->name, 'SomeProject');
     }
 
     /** @test */
@@ -137,6 +183,21 @@ class UnitTest extends TestCase
     {
         $projects = Project::all();
         $this->assertNotEmpty($projects);
+    }
+
+     /** @test */
+    public function projects_raw_query()
+    {
+        $unnamedProjects = App::get('database')->raw('SELECT * FROM projects WHERE project_id > ?', [0]);
+        $this->assertNotEmpty(count($unnamedProjects));
+        $namedProjects = App::get('database')->raw('SELECT * FROM projects WHERE project_id > :project_id', ['project_id' => 0]);
+        $this->assertNotEmpty(count($namedProjects));
+        $newProject = App::get('database')->raw('INSERT INTO projects(name) VALUES (?)', ['TestingProject']);
+        $this->assertNotEmpty($newProject);
+        $deleteProject = App::get('database')->raw('DELETE FROM projects WHERE name = :name', ['name' => 'TestingProject']);
+        $this->assertNotEmpty($deleteProject);
+        $deletedProject = App::get('database')->raw('SELECT * FROM projects WHERE name = ?', ['TestingProject']);
+        $this->assertEmpty(count($deletedProject));
     }
 
     /** @test */
