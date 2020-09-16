@@ -15,10 +15,15 @@ class UsersController
     /*
      * This function selects all the users from the users database and then grabs the users view to display them.
      */
-    public function index()
+    public function index($vars = [])
     {
-        $users = User::all();
-        return view('users', compact('users'));
+        $user = new User();
+        $count = $user->count();
+        $limit = 5;
+        $page = $vars['page'] ?? 1;
+        $offset = ($page - 1) * $limit;
+        $users = $user->find([['user_id', '>', '0']], $limit, $offset)->get();
+        return view('users', compact('users', 'count', 'page', 'limit'));
     }
 
     /*

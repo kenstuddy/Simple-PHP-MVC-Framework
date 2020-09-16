@@ -41,15 +41,39 @@ abstract class Model
     protected $rows = [];
 
     /**
+     * This method returns the last SQL query by the query builder.
+     * @return string
+     * @throws Exception
+     */
+    public function getSql(): string
+    {
+        return App::get('database')->setClassName(get_class($this))->getSql();
+    }
+
+    /**
      * This method finds one or more rows in the database and binds it to the Model.
      * @param $where
      * @return $this
      * @throws Exception
      */
-    public function find($where): Model
+    public function find($where, $limit = "", $offset = ""): Model
     {
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where);
+        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
         return $this;
+    }
+
+    /**
+     * This method returns the count of the rows for a database query.
+     * @param $where
+     * @return int|bool
+     * @throws Exception
+     */
+    public function count($where = "")
+    {
+        if (!empty($where)) {
+            return App::get('database')->setClassName(get_class($this))->countWhere(static::$table, $where);
+        }
+        return App::get('database')->setClassName(get_class($this))->count(static::$table);
     }
 
     /**

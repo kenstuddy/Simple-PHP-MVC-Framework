@@ -23,6 +23,12 @@ class QueryBuilder
     protected $class_name;
 
     /**
+     * This is the current SQL query.
+     * @var
+     */
+    protected $sql;
+
+    /**
      * This method is the constructor for the QueryBuilder class and simply initializes a new PDO object.
      * @param PDO $pdo
      */
@@ -38,6 +44,15 @@ class QueryBuilder
     public function getPdo(): PDO
     {
         return $this->pdo;
+    }
+
+    /**
+     * This method returns the last set SQL query.
+     *
+     */
+    public function getSql(): string
+    {
+        return $this->sql;
     }
 
     /**
@@ -79,6 +94,49 @@ class QueryBuilder
     }
 
     /**
+     * This method returns the number of rows in a table.
+     * @param string $table
+     * @return  int|bool
+     * @throws Exception
+     */
+    public function count(string $table)
+    {
+        $this->sql = "SELECT COUNT(*) FROM {$table}";
+        try {
+            $statement = $this->pdo->prepare($this->sql);
+            $statement->execute();
+            return $statement->fetchColumn();
+        } catch (PDOException $e) {
+            $this->handlePDOException($e);
+        }
+        return false;
+    }
+
+    /**
+     * This method returns the number of rows in a table where one or more conditions are matched.
+     * @param string $table
+     * @param $where
+     * @param string $columns
+     * @return int|bool
+     * @throws Exception
+     */
+    public function countWhere(string $table, $where)
+    {
+        $where = $this->prepareWhere($where);
+        $mapped_wheres = $this->prepareMappedWheres($where);
+        $where = array_column($where, 3);
+        $this->sql = "SELECT COUNT(*) FROM {$table} WHERE {$mapped_wheres}";
+        try {
+            $statement = $this->pdo->prepare($this->sql);
+            $statement->execute($where);
+            return $statement->fetchColumn();
+        } catch (PDOException $e) {
+            $this->handlePDOException($e);
+        }
+        return false;
+    }
+
+    /**
      * This method selects rows from a table in a database.
      * @param string $table
      * @param string $columns
@@ -91,9 +149,9 @@ class QueryBuilder
     {
         $limit = $this->prepareLimit($limit);
         $offset = $this->prepareOffset($offset);
-        $sql = "SELECT {$columns} FROM {$table} {$limit} {$offset}";
+        $this->sql = "SELECT {$columns} FROM {$table} {$limit} {$offset}";
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute();
             return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
         } catch (PDOException $e) {
@@ -119,9 +177,9 @@ class QueryBuilder
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
-        $sql = "SELECT {$columns} FROM {$table} WHERE {$mapped_wheres} {$limit} {$offset}";
+        $this->sql = "SELECT {$columns} FROM {$table} WHERE {$mapped_wheres} {$limit} {$offset}";
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute($where);
             return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
         } catch (PDOException $e) {
@@ -140,9 +198,9 @@ class QueryBuilder
     public function delete(string $table, $limit = ""): int
     {
         $limit = $this->prepareLimit($limit);
-        $sql = "DELETE FROM {$table} {$limit}";
+        $this->sql = "DELETE FROM {$table} {$limit}";
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute();
             return $statement->rowCount();
         } catch (PDOException $e) {
@@ -166,9 +224,9 @@ class QueryBuilder
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
-        $sql = "DELETE FROM {$table} WHERE {$mapped_wheres} {$limit}";
+        $this->sql = "DELETE FROM {$table} WHERE {$mapped_wheres} {$limit}";
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute($where);
             return $statement->rowCount();
         } catch (PDOException $e) {
@@ -188,14 +246,14 @@ class QueryBuilder
     {
         $names = $this->prepareCommaSeparatedColumnNames($parameters);
         $values = $this->prepareCommaSeparatedColumnValues($parameters);
-        $sql = sprintf(
+        $this->sql = sprintf(
             'INSERT INTO %s (%s) VALUES (%s)',
             $table,
             $names,
             $values
         );
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute($parameters);
             return $this->pdo->lastInsertId();
         } catch (PDOException $e) {
@@ -216,14 +274,14 @@ class QueryBuilder
     {
         $limit = $this->prepareLimit($limit);
         $set = $this->prepareNamed($parameters);
-        $sql = sprintf(
+        $this->sql = sprintf(
             'UPDATE %s SET %s %s',
             $table,
             $set,
             $limit
         );
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute($parameters);
             return $statement->rowCount();
         } catch (PDOException $e) {
@@ -249,7 +307,7 @@ class QueryBuilder
         $where = $this->prepareWhere($where);
         $mapped_wheres = $this->prepareMappedWheres($where);
         $where = array_column($where, 3);
-        $sql = sprintf(
+        $this->sql = sprintf(
             'UPDATE %s SET %s WHERE %s %s',
             $table,
             $set,
@@ -257,7 +315,7 @@ class QueryBuilder
             $limit
         );
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute(array_merge($parameters, $where));
             return $statement->rowCount();
         } catch (PDOException $e) {
@@ -274,9 +332,9 @@ class QueryBuilder
      */
     public function describe(string $table)
     {
-        $sql = "DESCRIBE {$table}";
+        $this->sql = "DESCRIBE {$table}";
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo->prepare($this->sql);
             $statement->execute();
             return $statement->fetchAll(PDO::FETCH_CLASS, $this->class_name ?: "stdClass");
         } catch (PDOException $e) {

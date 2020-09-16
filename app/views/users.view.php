@@ -11,4 +11,7 @@
         <li><?= $user->name; ?> - <a href="/user/<?= $user->user_id ?>">U</a> - <a href="/user/delete/<?= $user->user_id ?>">X</a></li>
     <?php endforeach; ?>
 </ul>
+
+<?= paginate('users', $page, $limit, $count); ?>
+
 <?php require ('partials/footer.php'); ?>

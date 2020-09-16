@@ -7,6 +7,7 @@ if (App::get('config')['options']['array_routing']) {
         'about' => 'PagesController@about',
         'contact' => 'PagesController@contact',
         'users' => 'UsersController@index',
+        'users/{page}' => 'UsersController@index',
         'user/{id}' => 'UsersController@show',
         'user/delete/{id}' => 'UsersController@delete'
     ]);
@@ -21,6 +22,7 @@ else {
     $router->get('contact', 'PagesController@contact');
 
     $router->get('users', 'UsersController@index');
+    $router->get('users/{page}', 'UsersController@index');
     $router->get('user/{id}', 'UsersController@show');
     $router->get('user/delete/{id}', 'UsersController@delete');
     $router->post('users', 'UsersController@store');
