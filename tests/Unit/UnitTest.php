@@ -209,6 +209,31 @@ class UnitTest extends TestCase
         $this->assertEmpty($deletedProject);
     }
 
+    /** @test */
+    public function users_model_paginate()
+    {
+        $user = new User();
+        for ($i = 0; $i < 5; $i++) {
+            $user->add(['name' => 'TestUser']);
+        }
+        $num = $user->count();
+        $this->assertNotEmpty($num);
+        $numMany = $user->count([['user_id', '>', '3']]);
+        $this->assertNotEmpty($numMany);
+        $page = 1;
+        $limit = 2;
+        $pageOneUser = new User();
+        $pageOneUsers = $pageOneUser->find([['user_id', '>', '0']], $limit, ($page - 1) * $limit);
+        $this->assertNotEmpty($pageOneUsers);
+        $page = 2;
+        $pageTwoUser = new User();
+        $pageTwoUsers = $pageTwoUser->find([['user_id', '>', '0']], $limit, ($page - 1) * $limit);
+        $this->assertNotEmpty($pageTwoUsers);
+        $this->assertNotEquals($pageTwoUsers->first()->user_id, $pageOneUsers->first()->user_id);
+        $user->deleteWhere([['name', '=', 'TestUser']]);
+        $deletedUsers = $user->find([['name', '=', 'TestUser']])->get();
+        $this->assertEmpty($deletedUsers);
+    }
 }
 
 ?>
