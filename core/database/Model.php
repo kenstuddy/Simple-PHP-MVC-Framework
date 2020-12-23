@@ -51,15 +51,30 @@ abstract class Model
     }
 
     /**
-     * This method finds one or more rows in the database and binds it to the Model.
+     * This method finds one or more rows in the database and binds it to the Model, or returns null if no rows are found.
+     * @param $where
+     * @return $this|null
+     * @throws Exception
+     */
+    public function find($where, $limit = "", $offset = ""): ?Model
+    {
+        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
+        return !empty($this->rows) ? $this : null;
+    }
+
+    /**
+     * This method finds one or more rows in the database and binds it to the Model, or throws an exception if no rows are found.
      * @param $where
      * @return $this
      * @throws Exception
      */
-    public function find($where, $limit = "", $offset = ""): Model
+    public function findOrFail($where, $limit = "", $offset = ""): Model
     {
         $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
-        return $this;
+        if (!empty($this->rows)) {
+            return $this;
+        }
+        throw new RuntimeException("ModelNotFoundException");
     }
 
     /**

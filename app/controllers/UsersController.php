@@ -22,7 +22,8 @@ class UsersController
         $limit = 5;
         $page = $vars['page'] ?? 1;
         $offset = ($page - 1) * $limit;
-        $users = $user->find([['user_id', '>', '0']], $limit, $offset)->get();
+        $user = $user->find([['user_id', '>', '0']], $limit, $offset);
+        $users = $user ? $user->get() : [];
         return view('users', compact('users', 'count', 'page', 'limit'));
     }
 
@@ -31,9 +32,22 @@ class UsersController
      */
     public function show($vars)
     {
-        $user = App::get('database')->selectAllWhere('users', [
+        //Here we use the Query Builder to get the user:
+        /*$user = App::get('database')->selectAllWhere('users', [
             ['user_id', '=', $vars['id']],
         ]);
+        */
+
+        //Here we use the ORM to get the user:
+        $user = new User();
+        $foundUser = $user->find([
+            ['user_id', '=', $vars['id']]
+        ]);
+        $user = $foundUser ? $foundUser->get() : [];
+
+        if (empty($user)) {
+            redirect('users');
+        }
         return view('user', compact('user'));
     }
 
