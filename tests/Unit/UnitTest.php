@@ -225,10 +225,12 @@ class UnitTest extends TestCase
         $pageOneUser = new User();
         $pageOneUsers = $pageOneUser->find([['user_id', '>', '0']], $limit, ($page - 1) * $limit);
         $this->assertNotEmpty($pageOneUsers);
+        $this->assertCount(2, $pageOneUsers->get());
         $page = 2;
         $pageTwoUser = new User();
         $pageTwoUsers = $pageTwoUser->find([['user_id', '>', '0']], $limit, ($page - 1) * $limit);
         $this->assertNotEmpty($pageTwoUsers);
+        $this->assertCount(2, $pageOneUsers->get());
         $this->assertNotEquals($pageTwoUsers->first()->user_id, $pageOneUsers->first()->user_id);
         $user->deleteWhere([['name', '=', 'TestUser']]);
         $deletedUsers = $user->find([['name', '=', 'TestUser']])->get();
