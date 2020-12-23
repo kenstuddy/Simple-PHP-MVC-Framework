@@ -353,6 +353,7 @@ class QueryBuilder
     public function raw(string $sql, array $parameters = [])
     {
         try {
+            $this->sql = $sql;
             $statement = $this->pdo->prepare($sql);
             $statement->execute($parameters);
             $output = $statement->rowCount();
