@@ -40,6 +40,7 @@ class UnitTest extends TestCase
     {
         $count = 2;
         $users = App::get('database')->selectAll('users', $count);
+        //echo App::get('database')->getSql();
         $this->assertCount($count, $users);
     }
 
@@ -49,6 +50,7 @@ class UnitTest extends TestCase
         $user = App::get('database')->selectAllWhere('users', [
             ['name', '=', 'TestUser'],
         ]);
+        //echo App::get('database')->getSql();
         $this->assertNotEmpty($user);
     }
 
@@ -174,8 +176,10 @@ class UnitTest extends TestCase
     {
         $project = new Project();
         $project = $project->add(['name' => 'TestProject']);
+        //echo $project->getSql();
         $this->assertEquals($project->first()->name, 'TestProject');
         $project = $project->find([['name', '=', 'TestProject']]);
+        //echo $project->getSql();
         $foundProject = $project ? $project->first() : null;
         $this->assertEquals($foundProject->name, 'TestProject');
 
@@ -204,12 +208,15 @@ class UnitTest extends TestCase
     public function projects_raw_query()
     {
         $unnamedProjects = App::get('database')->raw('SELECT * FROM projects WHERE project_id > ?', [0]);
+        //echo App::get('database')->getSql();
         $this->assertNotEmpty(count($unnamedProjects));
         $namedProjects = App::get('database')->raw('SELECT * FROM projects WHERE project_id > :project_id', ['project_id' => 0]);
+        //echo App::get('database')->getSql();
         $this->assertNotEmpty(count($namedProjects));
         $newProject = App::get('database')->raw('INSERT INTO projects(name) VALUES (?)', ['TestingProject']);
         $this->assertNotEmpty($newProject);
         $deleteProject = App::get('database')->raw('DELETE FROM projects WHERE name = :name', ['name' => 'TestingProject']);
+        //echo App::get('database')->getSql();
         $this->assertNotEmpty($deleteProject);
         $deletedProject = App::get('database')->raw('SELECT * FROM projects WHERE name = ?', ['TestingProject']);
         $this->assertEmpty(count($deletedProject));
@@ -239,6 +246,7 @@ class UnitTest extends TestCase
         $limit = 2;
         $pageOneUser = new User();
         $pageOneUsers = $pageOneUser->find([['user_id', '>', '0']], $limit, ($page - 1) * $limit);
+        //echo $pageOneUsers->getSql();
         $this->assertNotNull($pageOneUsers);
         $this->assertCount(2, $pageOneUsers ? $pageOneUsers->get() : null);
         $page = 2;
@@ -247,6 +255,7 @@ class UnitTest extends TestCase
         $this->assertNotNull($pageTwoUsers);
         $this->assertCount(2, $pageTwoUsers ? $pageTwoUsers->get() : null);
         $this->assertNotEquals($pageTwoUsers ? $pageTwoUsers->first()->user_id : null, $pageOneUsers ? $pageOneUsers->first()->user_id : null);
+        //echo $pageTwoUsers->getSql();
         $user->deleteWhere([['name', '=', 'TestUser']]);
         $deletedUsers = $user->find([['name', '=', 'TestUser']]);
         $this->assertNull($deletedUsers);
