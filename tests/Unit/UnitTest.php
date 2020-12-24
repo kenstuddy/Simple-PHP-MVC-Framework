@@ -16,6 +16,12 @@ class UnitTest extends TestCase
     }
 
     /** @test */
+    public function database_is_not_empty()
+    {
+        $this->assertNotEmpty(App::get('database'));
+    }
+
+    /** @test */
     public function users_store()
     {
         $testUser = App::get('database')->insert('users', [
@@ -96,9 +102,8 @@ class UnitTest extends TestCase
         $user = new User();
         $user = $user->add(['name' => 'TestUser']);
         $this->assertEquals($user->first()->name, 'TestUser');
-        $user = $user->find([['name', '=', 'TestUser']]);
-        $foundUser = $user ? $user->first() : null;
-        $this->assertEquals($foundUser->name, 'TestUser');
+        $user = $user->where([['name', '=', 'TestUser']])->first();
+        $this->assertEquals($user->name, 'TestUser');
     }
 
     /** @test */
@@ -112,17 +117,28 @@ class UnitTest extends TestCase
     public function user_model_first_or_fail()
     {
         $user = new User();
-        $user->find([['name', '=', 'TestUser']]);
-        $user = $user ? $user->firstOrFail() : null;
+        $user->where([['name', '=', 'TestUser']])->firstOrFail();
         $this->assertNotEmpty($user);
+    }
+
+    /** @test */
+    public function user_model_find()
+    {
+        $user = new User();
+        $user = $user->add(['name' => 'NewUserHere']);
+        $newUser = $user->find($user->first()->id());
+        $this->assertNotEmpty($newUser);
+        $newUser->deleteWhere([[$user->first()->primary(), '=', $user->first()->id()]]);
+        $user = $user->find(-1);
+        $this->assertNull($user);
     }
 
     /** @test */
     public function user_model_find_or_fail()
     {
         $user = new User();
-        $user = $user->findOrFail([['name', '=', 'TestUser']]);
-        $this->assertNotEmpty($user);
+        $this->expectExceptionMessage("ModelNotFoundException");
+        $user->findOrFail(-1);
     }
 
     /** @test */
@@ -145,21 +161,19 @@ class UnitTest extends TestCase
     {
         $user = new User();
         $user->updateWhere(['name' => 'SomeUser'], [['name', '=', 'TestUser']]);
-        $user = $user->find([['name', '=', 'SomeUser']]);
-        $updatedUser = $user ? $user->first() : null;
-        $this->assertEquals($updatedUser->name, 'SomeUser');
+        $user = $user->where([['name', '=', 'SomeUser']])->first();
+        $this->assertEquals($user->name, 'SomeUser');
     }
 
     /** @test */
     public function user_model_save()
     {
         $user = new User();
-        $user = $user->find([['name', '=', 'SomeUser']]);
-        $foundUser = $user ? $user->first() : null;
-        $this->assertEquals($foundUser->name, 'SomeUser');
-        $foundUser->name = 'ThisUser';
-        $foundUser->save();
-        $this->assertEquals($user->first()->name, 'ThisUser');
+        $user = $user->where([['name', '=', 'SomeUser']])->first();
+        $this->assertEquals($user->name, 'SomeUser');
+        $user->name = 'ThisUser';
+        $user->save();
+        $this->assertEquals($user->name, 'ThisUser');
     }
 
     /** @test */
@@ -167,8 +181,8 @@ class UnitTest extends TestCase
     {
         $user = new User();
         $user->deleteWhere([['name', '=', 'ThisUser']]);
-        $deletedUser = $user->find([['name', '=', 'ThisUser']]);
-        $this->assertNull($deletedUser);
+        $deletedUser = $user->where([['name', '=', 'ThisUser']])->first();
+        $this->assertEmpty($deletedUser);
     }
 
     /** @test */
@@ -178,10 +192,9 @@ class UnitTest extends TestCase
         $project = $project->add(['name' => 'TestProject']);
         //echo $project->getSql();
         $this->assertEquals($project->first()->name, 'TestProject');
-        $project = $project->find([['name', '=', 'TestProject']]);
+        $project = $project->where([['name', '=', 'TestProject']])->first();
         //echo $project->getSql();
-        $foundProject = $project ? $project->first() : null;
-        $this->assertEquals($foundProject->name, 'TestProject');
+        $this->assertEquals($project->name, 'TestProject');
 
     }
 
@@ -189,8 +202,9 @@ class UnitTest extends TestCase
     public function project_model_save()
     {
         $project = new Project();
-        $project = $project->find([['name', '=', 'TestProject']]);
-        $foundProject = $project ? $project->first() : null;
+        $foundProject = $project->where([['name', '=', 'TestProject']])->first();
+        //dd($project->describe());
+        //dd($foundProject->describe());
         $this->assertEquals($foundProject->name, 'TestProject');
         $foundProject->name = 'SomeProject';
         $foundProject->save();
@@ -227,8 +241,8 @@ class UnitTest extends TestCase
     {
         $project = new Project();
         $project->deleteWhere([['name', '=', 'TestProject']]);
-        $deletedProject = $project->find([['name', '=', 'TestProject']]);
-        $this->assertNull($deletedProject);
+        $deletedProject = $project->where([['name', '=', 'TestProject']])->get();
+        $this->assertEmpty($deletedProject);
     }
 
     /** @test */
@@ -245,20 +259,20 @@ class UnitTest extends TestCase
         $page = 1;
         $limit = 2;
         $pageOneUser = new User();
-        $pageOneUsers = $pageOneUser->find([['user_id', '>', '0']], $limit, ($page - 1) * $limit);
+        $pageOneUsers = $pageOneUser->where([['user_id', '>', '0']], $limit, ($page - 1) * $limit)->get();
         //echo $pageOneUsers->getSql();
         $this->assertNotNull($pageOneUsers);
-        $this->assertCount(2, $pageOneUsers ? $pageOneUsers->get() : null);
+        $this->assertCount(2, $pageOneUsers);
         $page = 2;
         $pageTwoUser = new User();
-        $pageTwoUsers = $pageTwoUser->find([['user_id', '>', '0']], $limit, ($page - 1) * $limit);
+        $pageTwoUsers = $pageTwoUser->where([['user_id', '>', '0']], $limit, ($page - 1) * $limit)->get();
         $this->assertNotNull($pageTwoUsers);
-        $this->assertCount(2, $pageTwoUsers ? $pageTwoUsers->get() : null);
-        $this->assertNotEquals($pageTwoUsers ? $pageTwoUsers->first()->user_id : null, $pageOneUsers ? $pageOneUsers->first()->user_id : null);
+        $this->assertCount(2, $pageTwoUsers);
+        $this->assertNotEquals($pageTwoUsers[0]->user_id, $pageOneUsers[0]->user_id);
         //echo $pageTwoUsers->getSql();
         $user->deleteWhere([['name', '=', 'TestUser']]);
-        $deletedUsers = $user->find([['name', '=', 'TestUser']]);
-        $this->assertNull($deletedUsers);
+        $deletedUsers = $user->where([['name', '=', 'TestUser']])->get();
+        $this->assertEmpty($deletedUsers);
     }
 }
 

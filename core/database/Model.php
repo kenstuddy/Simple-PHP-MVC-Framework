@@ -50,31 +50,46 @@ abstract class Model
         return App::get('database')->setClassName(get_class($this))->getSql();
     }
 
-    /**
-     * This method finds one or more rows in the database and binds it to the Model, or returns null if no rows are found.
-     * @param $where
-     * @return $this|null
+     /**
+     * This method finds one or more rows in the database based off of ID and binds it to the Model, or returns null if no rows are found.
+     * @param $id
+     * @return $this
      * @throws Exception
      */
-    public function find($where, $limit = "", $offset = ""): ?Model
+    public function find($id): ?Model
     {
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
+        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $id]]);
         return !empty($this->rows) ? $this : null;
     }
 
     /**
-     * This method finds one or more rows in the database and binds it to the Model, or throws an exception if no rows are found.
-     * @param $where
+     * This method finds one or more rows in the database based off of ID and binds it to the Model, or throws an exception if no rows are found.
+     * @param $id
      * @return $this
      * @throws Exception
      */
-    public function findOrFail($where, $limit = "", $offset = ""): Model
+    public function findOrFail($id): Model
     {
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
+        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $id]]);
         if (!empty($this->rows)) {
             return $this;
         }
         throw new RuntimeException("ModelNotFoundException");
+    }
+
+     /**
+     * This method finds one or more rows matching specific criteria in the database and binds it to the Model, then returns the Model.
+     * @param $where
+     * @return $this
+     * @throws Exception
+     */
+    public function where($where, $limit = "", $offset = ""): Model
+    {
+        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
+        return $this;
     }
 
     /**
@@ -99,31 +114,35 @@ abstract class Model
      */
     public function add($columns): Model
     {
-        $id = App::get('database')->insert(static::$table, $columns);
-        $cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, [[$cols[0]->Field, '=', $id]]);
+        $this->id = App::get('database')->insert(static::$table, $columns);
+        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $this->id]]);
         return $this;
     }
 
     /**
      * This method updates one or more rows in the database.
      * @param $parameters
+     * @return $this
      * @throws Exception
      */
-    public function update($parameters): void
+    public function update($parameters): Model
     {
         App::get('database')->update(static::$table, $parameters);
+        return $this;
     }
 
     /**
      * This method updates one or more rows in the database matching specific criteria.
      * @param $parameters
      * @param $where
+     * @return $this
      * @throws Exception
      */
-    public function updateWhere($parameters, $where): void
+    public function updateWhere($parameters, $where): Model
     {
         App::get('database')->updateWhere(static::$table, $parameters, $where);
+        return $this;
     }
 
     /**
@@ -147,16 +166,18 @@ abstract class Model
 
     /**
      * This method updates one or more rows in the database.
+     * @return $this
      * @throws Exception
      */
-    public function save(): void
+    public function save(): Model
     {
-        $cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
         $newValues = [];
-        foreach ($cols as $col) {
+        foreach ($this->cols as $col) {
             $newValues[$col->Field] = $this->{$col->Field};
         }
-        App::get('database')->updateWhere(static::$table, $newValues, [[$cols[0]->Field, '=', $this->{$cols[0]->Field}]]);
+        App::get('database')->updateWhere(static::$table, $newValues, [[$this->cols[0]->Field, '=', $this->{$this->cols[0]->Field}]]);
+        return $this;
     }
 
     /**
@@ -179,6 +200,19 @@ abstract class Model
     }
 
     /**
+     * This method fetches all of the columns for the Model.
+     * This returns the columns if they're cached, otherwise they are fetched again first.
+     * @return array
+     */
+    public function describe(): array
+    {
+        if (!$this->cols) {
+           $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        }
+        return $this->cols;
+    }
+
+    /**
      * This method fetches the first row for the Model.
      * @return mixed|null
      */
@@ -197,5 +231,29 @@ abstract class Model
             return $this->rows[0];
         }
         throw new RuntimeException("ModelNotFoundException");
+    }
+
+    /**
+     * This method returns the primary key's value for the Model, or null if it doesn't have one.
+     * @return string|null
+     * @throws Exception
+     */
+    public function id() {
+        if (!$this->cols) {
+           $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        }
+        return $this->{$this->cols[0]->Field} ?? null;
+    }
+
+    /**
+     * This method returns the primary key's name for the Model, or null if it doesn't have one.
+     * @return string|null
+     * @throws Exception
+     */
+    public function primary() {
+        if (!$this->cols) {
+           $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        }
+        return $this->cols[0]->Field ?? null;
     }
 }

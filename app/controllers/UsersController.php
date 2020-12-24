@@ -22,8 +22,7 @@ class UsersController
         $limit = 5;
         $page = $vars['page'] ?? 1;
         $offset = ($page - 1) * $limit;
-        $user = $user->find([['user_id', '>', '0']], $limit, $offset);
-        $users = $user ? $user->get() : [];
+        $users = $user->where([['user_id', '>', '0']], $limit, $offset)->get();
         return view('users', compact('users', 'count', 'page', 'limit'));
     }
 
@@ -40,9 +39,7 @@ class UsersController
 
         //Here we use the ORM to get the user:
         $user = new User();
-        $foundUser = $user->find([
-            ['user_id', '=', $vars['id']]
-        ]);
+        $foundUser = $user->find($vars['id']);
         $user = $foundUser ? $foundUser->get() : [];
 
         if (empty($user)) {
