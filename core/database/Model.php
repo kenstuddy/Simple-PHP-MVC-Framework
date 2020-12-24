@@ -47,7 +47,7 @@ abstract class Model
      */
     public function getSql(): string
     {
-        return App::get('database')->setClassName(get_class($this))->getSql();
+        return App::DB()->setClassName(get_class($this))->getSql();
     }
 
      /**
@@ -58,8 +58,8 @@ abstract class Model
      */
     public function find($id): ?Model
     {
-        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $id]]);
+        $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::DB()->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $id]]);
         return !empty($this->rows) ? $this : null;
     }
 
@@ -71,8 +71,8 @@ abstract class Model
      */
     public function findOrFail($id): Model
     {
-        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $id]]);
+        $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::DB()->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $id]]);
         if (!empty($this->rows)) {
             return $this;
         }
@@ -87,8 +87,8 @@ abstract class Model
      */
     public function where($where, $limit = "", $offset = ""): Model
     {
-        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
+        $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::DB()->setClassName(get_class($this))->selectAllWhere(static::$table, $where, $limit, $offset);
         return $this;
     }
 
@@ -101,9 +101,9 @@ abstract class Model
     public function count($where = "")
     {
         if (!empty($where)) {
-            return App::get('database')->setClassName(get_class($this))->countWhere(static::$table, $where);
+            return App::DB()->setClassName(get_class($this))->countWhere(static::$table, $where);
         }
-        return App::get('database')->setClassName(get_class($this))->count(static::$table);
+        return App::DB()->setClassName(get_class($this))->count(static::$table);
     }
 
     /**
@@ -114,9 +114,9 @@ abstract class Model
      */
     public function add($columns): Model
     {
-        $this->id = App::get('database')->insert(static::$table, $columns);
-        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
-        $this->rows = App::get('database')->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $this->id]]);
+        $this->id = App::DB()->insert(static::$table, $columns);
+        $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
+        $this->rows = App::DB()->setClassName(get_class($this))->selectAllWhere(static::$table, [[$this->cols[0]->Field, '=', $this->id]]);
         return $this;
     }
 
@@ -128,7 +128,7 @@ abstract class Model
      */
     public function update($parameters): Model
     {
-        App::get('database')->update(static::$table, $parameters);
+        App::DB()->update(static::$table, $parameters);
         return $this;
     }
 
@@ -141,7 +141,7 @@ abstract class Model
      */
     public function updateWhere($parameters, $where): Model
     {
-        App::get('database')->updateWhere(static::$table, $parameters, $where);
+        App::DB()->updateWhere(static::$table, $parameters, $where);
         return $this;
     }
 
@@ -151,7 +151,7 @@ abstract class Model
      */
     public function delete(): void
     {
-        App::get('database')->delete(static::$table);
+        App::DB()->delete(static::$table);
     }
 
     /**
@@ -161,7 +161,7 @@ abstract class Model
      */
     public function deleteWhere($where): void
     {
-        App::get('database')->deleteWhere(static::$table, $where);
+        App::DB()->deleteWhere(static::$table, $where);
     }
 
     /**
@@ -171,12 +171,12 @@ abstract class Model
      */
     public function save(): Model
     {
-        $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+        $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
         $newValues = [];
         foreach ($this->cols as $col) {
             $newValues[$col->Field] = $this->{$col->Field};
         }
-        App::get('database')->updateWhere(static::$table, $newValues, [[$this->cols[0]->Field, '=', $this->{$this->cols[0]->Field}]]);
+        App::DB()->updateWhere(static::$table, $newValues, [[$this->cols[0]->Field, '=', $this->{$this->cols[0]->Field}]]);
         return $this;
     }
 
@@ -187,7 +187,7 @@ abstract class Model
      */
     public static function all()
     {
-        return App::get('database')->setClassName(static::class)->selectAll(static::$table);
+        return App::DB()->setClassName(static::class)->selectAll(static::$table);
     }
 
     /**
@@ -207,7 +207,7 @@ abstract class Model
     public function describe(): array
     {
         if (!$this->cols) {
-           $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+           $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
         }
         return $this->cols;
     }
@@ -240,7 +240,7 @@ abstract class Model
      */
     public function id() {
         if (!$this->cols) {
-           $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+           $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
         }
         return $this->{$this->cols[0]->Field} ?? null;
     }
@@ -252,7 +252,7 @@ abstract class Model
      */
     public function primary() {
         if (!$this->cols) {
-           $this->cols = App::get('database')->setClassName(get_class($this))->describe(static::$table);
+           $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
         }
         return $this->cols[0]->Field ?? null;
     }

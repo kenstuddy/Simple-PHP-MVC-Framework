@@ -24,6 +24,16 @@ class App
         return static::$registry[$key];
     }
 
+    public static function DB()
+    {
+        return static::get('database');
+    }
+
+    public static function Config()
+    {
+        return static::get('config');
+    }
+
     public static function logInfo($data, Logger $logger = null): bool
     {
         $logger = $logger ?: new LogToFile();

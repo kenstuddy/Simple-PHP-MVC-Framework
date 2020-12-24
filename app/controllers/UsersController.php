@@ -32,7 +32,7 @@ class UsersController
     public function show($vars)
     {
         //Here we use the Query Builder to get the user:
-        /*$user = App::get('database')->selectAllWhere('users', [
+        /*$user = App::DB()->selectAllWhere('users', [
             ['user_id', '=', $vars['id']],
         ]);
         */
@@ -53,7 +53,7 @@ class UsersController
      */
     public function store()
     {
-        App::get('database')->insert('users', [
+        App::DB()->insert('users', [
             'name' => $_POST['name']
         ]);
         return redirect('users');
@@ -64,7 +64,7 @@ class UsersController
      */
     public function update($vars)
     {
-        App::get('database')->updateWhere('users', [
+        App::DB()->updateWhere('users', [
             'name' => $_POST['name']
         ], [
             ['user_id', '=', $vars['id']]
@@ -77,7 +77,7 @@ class UsersController
      */
     public function delete($vars)
     {
-        App::get('database')->deleteWhere('users', [
+        App::DB()->deleteWhere('users', [
             ['user_id', '=', $vars['id']]
         ]);
         return redirect('users');
