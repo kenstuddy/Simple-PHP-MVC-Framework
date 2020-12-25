@@ -123,45 +123,45 @@ abstract class Model
     /**
      * This method updates one or more rows in the database.
      * @param $parameters
-     * @return $this
+     * @return int
      * @throws Exception
      */
-    public function update($parameters): Model
+    public function update($parameters): int
     {
-        App::DB()->update(static::$table, $parameters);
-        return $this;
+        return App::DB()->update(static::$table, $parameters);
     }
 
     /**
      * This method updates one or more rows in the database matching specific criteria.
      * @param $parameters
      * @param $where
-     * @return $this
+     * @return int
      * @throws Exception
      */
-    public function updateWhere($parameters, $where): Model
+    public function updateWhere($parameters, $where): int
     {
-        App::DB()->updateWhere(static::$table, $parameters, $where);
-        return $this;
+        return App::DB()->updateWhere(static::$table, $parameters, $where);
     }
 
     /**
      * This method deletes one or more rows from the database.
+     * @return int
      * @throws Exception
      */
-    public function delete(): void
+    public function delete(): int
     {
-        App::DB()->delete(static::$table);
+        return App::DB()->delete(static::$table);
     }
 
     /**
      * This method deletes one or more rows from the database matching specific criteria.
      * @param $where
+     * @return int
      * @throws Exception
      */
-    public function deleteWhere($where): void
+    public function deleteWhere($where): int
     {
-        App::DB()->deleteWhere(static::$table, $where);
+        return App::DB()->deleteWhere(static::$table, $where);
     }
 
     /**
@@ -182,7 +182,7 @@ abstract class Model
 
     /**
      * This static method returns and binds one or more rows in the database to the model.
-     * @return mixed
+     * @return array|false
      * @throws Exception
      */
     public static function all()
@@ -192,7 +192,7 @@ abstract class Model
 
     /**
      * This method fetches all of the rows for the Model.
-     * @return array
+     * @return Model[]
      */
     public function get(): array
     {
@@ -214,18 +214,19 @@ abstract class Model
 
     /**
      * This method fetches the first row for the Model.
-     * @return mixed|null
+     * @return Model|null
      */
-    public function first()
+    public function first(): ?Model
     {
         return $this->rows[0] ?? null;
     }
 
     /**
      * This method fetches the first row for the Model or throws an exception if a row is not found.
-     * @return mixed
+     * @return Model
+     * @throws Exception
      */
-    public function firstOrFail()
+    public function firstOrFail(): Model
     {
         if (!empty($this->rows[0])) {
             return $this->rows[0];
@@ -238,7 +239,8 @@ abstract class Model
      * @return string|null
      * @throws Exception
      */
-    public function id() {
+    public function id(): ?string
+    {
         if (!$this->cols) {
            $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
         }
@@ -250,7 +252,8 @@ abstract class Model
      * @return string|null
      * @throws Exception
      */
-    public function primary() {
+    public function primary(): ?string
+    {
         if (!$this->cols) {
            $this->cols = App::DB()->setClassName(get_class($this))->describe(static::$table);
         }
