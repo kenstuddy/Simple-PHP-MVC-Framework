@@ -182,7 +182,7 @@ abstract class Model
 
     /**
      * This static method returns and binds one or more rows in the database to the model.
-     * @return array|false
+     * @return Model[]|false
      * @throws Exception
      */
     public static function all()
