@@ -32,16 +32,17 @@ function dd($value)
 function paginate($table, $page, $limit, $count)
 {
     $offset = ($page - 1) * $limit;
-    $output = "";
+    $output = "<span class='text-dark'>";
     if ($page > 1) {
         $prev = $page - 1;
-        $output .= "<a href='/{$table}/{$prev}'>Prev</a>";
+        $output .= "<a href='/{$table}/{$prev}' class='text-primary'>Prev</a>";
     }
     $output .= " Page $page ";
     if ($count > ($offset + $limit)) {
         $next = $page + 1;
-        $output .= "<a href='/{$table}/{$next}'>Next</a>";
+        $output .= "<a href='/{$table}/{$next}' class='text-primary'>Next</a>";
     }
+    $output .= "</span>";
     return $output;
 }
 
