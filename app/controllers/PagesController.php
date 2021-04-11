@@ -13,7 +13,6 @@ class PagesController
      */
     public function home()
     {
-
         return view('index');
     }
     /*
@@ -21,7 +20,8 @@ class PagesController
      */
     public function about()
     {
-        return view('about');
+        $repo = "https://github.com/kenstuddy/Simple-PHP-MVC-Framework";
+        return view('about', compact('repo'));
     }
     /*
      * This function grabs the contact view.
@@ -29,7 +29,9 @@ class PagesController
     public function contact()
     {
         $title = "Me";
-        return view('contact', compact('title'));
+        $email = "kenstuddy@gmail.com";
+        $website = "https://kenstuddy.com";
+        return view('contact', compact('title', 'email', 'website'));
     }
 }
 

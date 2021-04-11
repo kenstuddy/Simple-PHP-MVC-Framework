@@ -5,21 +5,21 @@
 
 
 <div class="collapse navbar-collapse" id="nav-content">
-    <ul class="navbar-nav bg-white">
+    <ul class="navbar-nav <?= theme('bg-dark','bg-white') ?>">
         <li class="nav-item">
-            <a class="nav-link text-primary" href="/">Index</a>
+            <a class="nav-link <?= theme('text-light', 'text-primary') ?>" href="/">Index</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-primary" href="/users">Users</a>
+            <a class="nav-link <?= theme('text-light', 'text-primary') ?>" href="/users">Users</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-primary" href="/about">About</a>
+            <a class="nav-link <?= theme('text-light', 'text-primary') ?>" href="/about">About</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-primary" href="/contact">Contact</a>
+            <a class="nav-link <?= theme('text-light', 'text-primary') ?>" href="/contact">Contact</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-primary" href="#" onclick="toggleDarkMode()">Dark Mode</a>
+            <a class="nav-link <?= theme('text-light', 'text-primary') ?>" href="#" onclick="toggleDarkMode()">Dark Mode</a>
         </li>
     </ul>
     </div>

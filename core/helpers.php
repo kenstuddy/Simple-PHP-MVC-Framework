@@ -15,7 +15,17 @@ function view($name, $data = [])
     extract($data);
     return require "../app/views/{$name}.view.php";
 }
-
+/*
+ * This function is used for dark mode functionality,
+ * it returns the first (dark) class string
+ * or second (light class string).
+ */
+function theme($class, $secondClass) {
+    if (isset($_SESSION['darkmode']) && $_SESSION['darkmode'] == true) {
+        return $class;
+    }
+    return $secondClass;
+}
 /*
  * This function is used for dying and dumping.
  */
@@ -32,15 +42,15 @@ function dd($value)
 function paginate($table, $page, $limit, $count)
 {
     $offset = ($page - 1) * $limit;
-    $output = "<span class='text-dark'>";
+    $output = "<span class='". theme('text-white-75', 'text-dark')  ."'>";
     if ($page > 1) {
         $prev = $page - 1;
-        $output .= "<a href='/{$table}/{$prev}' class='text-primary'>Prev</a>";
+        $output .= "<a href='/{$table}/{$prev}' class='".  theme('text-light', 'text-primary') ."'>Prev</a>";
     }
     $output .= " Page $page ";
     if ($count > ($offset + $limit)) {
         $next = $page + 1;
-        $output .= "<a href='/{$table}/{$next}' class='text-primary'>Next</a>";
+        $output .= "<a href='/{$table}/{$next}' class='".  theme('text-light', 'text-primary')  ."'>Next</a>";
     }
     $output .= "</span>";
     return $output;

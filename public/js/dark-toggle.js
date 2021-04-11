@@ -2,9 +2,11 @@ toggleDarkMode = () => {
     if ((document.getElementById('darkmode').value = !document.getElementById('darkmode').value) === true) {
         enableDarkMode();
         localStorage.setItem("darkmode", "true");
+        document.cookie = "darkmode=true;max-age=31540000;path=/";
     } else {
         disableDarkMode();
         localStorage.setItem("darkmode", "false");
+        document.cookie = "darkmode=false;max-age=31540000;path=/";
     }
 }
 
