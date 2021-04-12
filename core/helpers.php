@@ -57,6 +57,25 @@ function paginate($table, $page, $limit, $count)
 }
 
 /*
+ * This function displays a session variable's value if it exists.
+*/
+function session($name) {
+    return $_SESSION[$name] ?? "";
+}
+
+/*
+ * This function displays a session variable's value and unsets it if it exists.
+ */
+function session_once($name) {
+    if (isset($_SESSION[$name])) {
+        $value = $_SESSION[$name];
+        unset($_SESSION[$name]);
+        return $value;
+    }
+    return "";
+}
+
+/*
  * This function enables displaying of errors in the web browser.
  */
 function display_errors()
