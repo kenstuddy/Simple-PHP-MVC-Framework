@@ -1,1 +1,16 @@
-.text-white-75{color:rgba(255,255,255,.75)!important}
+.text-white-75 {
+    color:rgba(255,255,255,.75) !important; 
+}
+
+.home-paragraph {
+    line-height: 2;
+}
+
+.home-logo {
+    margin-top:40px; 
+    border-radius: 30px; 
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
