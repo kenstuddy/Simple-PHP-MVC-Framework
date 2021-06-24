@@ -1,13 +1,13 @@
 .text-white-75 {
-    color:rgba(255,255,255,.75) !important; 
+    color: rgba(255, 255, 255, .75) !important; 
 }
 
 .home-paragraph {
-    line-height: 2;
+    line-height: 2.2;
 }
 
 .home-logo {
-    margin-top:40px; 
+    margin-top:60px; 
     border-radius: 30px; 
     display: block;
     margin-left: auto;
