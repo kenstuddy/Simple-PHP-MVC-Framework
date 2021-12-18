@@ -34,6 +34,10 @@ enableDarkMode = () => {
         it.classList.remove('text-dark');
         it.classList.add('text-white-75');
     });
+    document.querySelectorAll(".navbar-light").forEach((it) => {
+        it.classList.remove('navbar-light');
+        it.classList.add('navbar-dark');
+    });
 }
 
 disableDarkMode = () => {
@@ -48,5 +52,9 @@ disableDarkMode = () => {
     document.querySelectorAll(".text-white-75").forEach((it) => {
         it.classList.remove('text-white-75');
         it.classList.add('text-dark');
+    });
+    document.querySelectorAll(".navbar-dark").forEach((it) => {
+        it.classList.remove('navbar-dark');
+        it.classList.add('navbar-light');
     });
 }

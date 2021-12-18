@@ -14,3 +14,7 @@
     margin-right: auto;
     width: 50%;
 }
+
+.navbar-toggler {
+    margin-bottom: 5px;
+}
