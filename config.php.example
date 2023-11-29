@@ -1,12 +1,12 @@
 <?php
 /*
  * This is where configuration information is stored about the framework. We can add extra options such as the PDO error mode,
- * PDO timeout, or any other attributes that may be useful.
+ * PDO timeout, or any other attributes that may be useful. Make sure to copy config.php.example to config.php.
  */
 return [
     'database' => [
         'name' => 'people',
-        'username' => 'root',
+        'username' => 'person',
         'password' => 'password',
         'connection' => 'mysql:host=127.0.0.1',
         'options' => [
