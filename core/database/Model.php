@@ -39,6 +39,18 @@ abstract class Model
      * @var array
      */
     protected $rows = [];
+    
+    protected $Field;
+    
+    protected $Type;
+    
+    protected $Null;
+    
+    protected $Key;
+    
+    protected $Default;
+    
+    protected $Extra;
 
     /**
      * This method returns the last SQL query by the query builder.

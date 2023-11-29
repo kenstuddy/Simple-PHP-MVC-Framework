@@ -9,6 +9,11 @@ use App\Core\Database\Model;
 class User extends Model
 {
     protected static $table = 'users';
+    
+    public $user_id;
+    
+    public $name;
+    
 }
 
 

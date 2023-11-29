@@ -9,6 +9,10 @@ use App\Core\Database\Model;
 class Project extends Model
 {
     protected static $table = 'projects';
+    
+    public $project_id;
+    
+    public $name;
 }
 
 
