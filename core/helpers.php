@@ -1,4 +1,5 @@
 <?php
+use App\Core\App;
 /*
  * This function redirects the user to a page.
  */
@@ -41,17 +42,32 @@ function dd($value)
  */
 function paginate($table, $page, $limit, $count)
 {
+    $totalPages = ceil($count / $limit);
     $offset = ($page - 1) * $limit;
     $output = "<span class='". theme('text-white-75', 'text-dark')  ."'>";
+
+    $showFirstLast = App::Config()['pagination']['show_first_last'];
+    
+    if ($showFirstLast && $page > 1) {
+        $output .= "<a href='/{$table}/1' class='".  theme('text-light', 'text-primary') ."'>First</a> ";
+    }
+    
     if ($page > 1) {
         $prev = $page - 1;
-        $output .= "<a href='/{$table}/{$prev}' class='".  theme('text-light', 'text-primary') ."'>Prev</a>";
+        $output .= "<a href='/{$table}/{$prev}' class='".  theme('text-light', 'text-primary') ."'>Prev</a> ";
     }
+
     $output .= " Page $page ";
+    
     if ($count > ($offset + $limit)) {
         $next = $page + 1;
-        $output .= "<a href='/{$table}/{$next}' class='".  theme('text-light', 'text-primary')  ."'>Next</a>";
+        $output .= "<a href='/{$table}/{$next}' class='".  theme('text-light', 'text-primary')  ."'>Next</a> ";
     }
+    
+    if ($showFirstLast && $page < $totalPages) {
+        $output .= "<a href='/{$table}/{$totalPages}' class='".  theme('text-light', 'text-primary') ."'>Last</a>";
+    }
+
     $output .= "</span>";
     return $output;
 }

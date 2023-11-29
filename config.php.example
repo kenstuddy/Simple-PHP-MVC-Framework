@@ -18,6 +18,9 @@ return [
         'debug' => true,
         'production' => false,
         'array_routing' => false
+    ],
+    'pagination' => [
+        'show_first_last' => true
     ]
 ]
 ?>
