@@ -19,7 +19,8 @@ class UsersController
     {
         $user = new User();
         $count = $user->count();
-        $limit = 5;
+        $paginationConfig = App::Config()['pagination'];
+        $limit = $paginationConfig['per_page'];
         $page = $vars['page'] ?? 1;
         $offset = ($page - 1) * $limit;
         $users = $user->where([['user_id', '>', '0']], $limit, $offset)->get();
@@ -56,7 +57,15 @@ class UsersController
         App::DB()->insert('users', [
             'name' => $_POST['name']
         ]);
-        return redirect('users');
+        $paginationConfig = App::Config()['pagination'];
+        if ($paginationConfig['show_latest_page_on_add']) {
+            $totalRecords = App::DB()->count('users');
+            $recordsPerPage = $paginationConfig['per_page'];
+            $lastPage = ceil($totalRecords / $recordsPerPage);
+            return redirect('users/' . $lastPage);
+        } else {
+            return redirect('users');
+        }
     }
 
     /*
@@ -80,7 +89,21 @@ class UsersController
         App::DB()->deleteWhere('users', [
             ['user_id', '=', $vars['id']]
         ]);
-        return redirect('users');
+        $paginationConfig = App::Config()['pagination'];
+        if ($paginationConfig['show_latest_page_on_delete']) {
+            $currentPage = $_GET['page'] ?? 1;
+            $recordsPerPage = $paginationConfig['per_page']; 
+            $totalRecordsAfterDeletion = App::DB()->count('users');
+            $lastPageAfterDeletion = max(ceil($totalRecordsAfterDeletion / $recordsPerPage), 1);
+            if ($currentPage > $lastPageAfterDeletion) {
+                $redirectPage = $lastPageAfterDeletion;
+            } else {
+                $redirectPage = $currentPage;
+            }
+            return redirect('users/' . $redirectPage);
+        } else {
+            return redirect('users');
+        }
     }
 }
 

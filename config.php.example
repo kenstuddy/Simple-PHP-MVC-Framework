@@ -20,7 +20,10 @@ return [
         'array_routing' => false
     ],
     'pagination' => [
-        'show_first_last' => true
+        'per_page' => 5,
+        'show_first_last' => true,
+        'show_latest_page_on_add' => true,
+        'show_latest_page_on_delete' => true,
     ]
 ]
 ?>
